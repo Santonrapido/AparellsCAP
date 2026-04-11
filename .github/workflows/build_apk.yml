@@ -20,19 +20,53 @@ jobs:
     - name: Configurar Gradle
       uses: gradle/actions/setup-gradle@v3
 
-    - name: Generar estructura Gradle si no existe
+    - name: Crear settings.gradle.kts si no existe
       run: |
         if [ ! -f settings.gradle.kts ]; then
-          echo "Generando archivos Gradle básicos..."
-          gradle init --type basic --dsl kotlin --project-name AparellsCAP --no-incubating
-          echo 'include(":app")' >> settings.gradle.kts
+          echo "Creando settings.gradle.kts..."
+          cat > settings.gradle.kts << 'EOF'
+          pluginManagement {
+              repositories {
+                  google()
+                  mavenCentral()
+                  gradlePluginPortal()
+              }
+          }
+          dependencyResolutionManagement {
+              repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+              repositories {
+                  google()
+                  mavenCentral()
+              }
+          }
+          rootProject.name = "AparellsCAP"
+          include(":app")
+          EOF
+        else
+          echo "settings.gradle.kts ya existe."
         fi
 
     - name: Crear build.gradle.kts raíz si no existe
       run: |
         if [ ! -f build.gradle.kts ]; then
+          echo "Creando build.gradle.kts raíz..."
           echo 'plugins { id("com.android.application") version "8.2.2" apply false }' > build.gradle.kts
+        else
+          echo "build.gradle.kts ya existe."
         fi
+
+    - name: Verificar estructura de archivos
+      run: |
+        echo "=== Archivos en raíz ==="
+        ls -la
+        echo "=== Contenido de settings.gradle.kts ==="
+        cat settings.gradle.kts || echo "No existe"
+        echo "=== Contenido de build.gradle.kts raíz ==="
+        cat build.gradle.kts || echo "No existe"
+        echo "=== Archivos en app/ ==="
+        ls -la app/ || echo "Carpeta app no encontrada"
+        echo "=== Contenido de app/build.gradle.kts ==="
+        cat app/build.gradle.kts || echo "No existe"
 
     - name: Compilar APK de depuración
       run: gradle assembleDebug
