@@ -1,0 +1,13 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <style name="Theme.AparellsCAP" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+        <item name="colorPrimary">@color/ics_blue</item>
+        <item name="colorPrimaryVariant">@color/ics_light_blue</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSecondary">@color/ics_light_blue</item>
+        <item name="colorSecondaryVariant">@color/ics_blue</item>
+        <item name="colorOnSecondary">@color/black</item>
+        <item name="android:textColorPrimary">@color/text_black</item>
+        <item name="android:textColorSecondary">@color/text_black</item>
+        <item name="android:windowBackground">@color/white</item>
+    </style>
+</resources>
