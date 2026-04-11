@@ -20,6 +20,20 @@ jobs:
     - name: Configurar Gradle
       uses: gradle/actions/setup-gradle@v3
 
+    - name: Generar estructura Gradle si no existe
+      run: |
+        if [ ! -f settings.gradle.kts ]; then
+          echo "Generando archivos Gradle básicos..."
+          gradle init --type basic --dsl kotlin --project-name AparellsCAP --no-incubating
+          echo 'include(":app")' >> settings.gradle.kts
+        fi
+
+    - name: Crear build.gradle.kts raíz si no existe
+      run: |
+        if [ ! -f build.gradle.kts ]; then
+          echo 'plugins { id("com.android.application") version "8.2.2" apply false }' > build.gradle.kts
+        fi
+
     - name: Compilar APK de depuración
       run: gradle assembleDebug
 
