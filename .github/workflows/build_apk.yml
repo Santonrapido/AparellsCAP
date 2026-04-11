@@ -24,24 +24,22 @@ jobs:
       run: |
         if [ ! -f settings.gradle.kts ]; then
           echo "Creando settings.gradle.kts..."
-          cat > settings.gradle.kts << 'EOF'
-          pluginManagement {
-              repositories {
-                  google()
-                  mavenCentral()
-                  gradlePluginPortal()
-              }
-          }
-          dependencyResolutionManagement {
-              repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-              repositories {
-                  google()
-                  mavenCentral()
-              }
-          }
-          rootProject.name = "AparellsCAP"
-          include(":app")
-          EOF
+          echo "pluginManagement {" > settings.gradle.kts
+          echo "    repositories {" >> settings.gradle.kts
+          echo "        google()" >> settings.gradle.kts
+          echo "        mavenCentral()" >> settings.gradle.kts
+          echo "        gradlePluginPortal()" >> settings.gradle.kts
+          echo "    }" >> settings.gradle.kts
+          echo "}" >> settings.gradle.kts
+          echo "dependencyResolutionManagement {" >> settings.gradle.kts
+          echo "    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)" >> settings.gradle.kts
+          echo "    repositories {" >> settings.gradle.kts
+          echo "        google()" >> settings.gradle.kts
+          echo "        mavenCentral()" >> settings.gradle.kts
+          echo "    }" >> settings.gradle.kts
+          echo "}" >> settings.gradle.kts
+          echo "rootProject.name = \"AparellsCAP\"" >> settings.gradle.kts
+          echo "include(\":app\")" >> settings.gradle.kts
         else
           echo "settings.gradle.kts ya existe."
         fi
@@ -50,7 +48,9 @@ jobs:
       run: |
         if [ ! -f build.gradle.kts ]; then
           echo "Creando build.gradle.kts raíz..."
-          echo 'plugins { id("com.android.application") version "8.2.2" apply false }' > build.gradle.kts
+          echo "plugins {" > build.gradle.kts
+          echo "    id(\"com.android.application\") version \"8.2.2\" apply false" >> build.gradle.kts
+          echo "}" >> build.gradle.kts
         else
           echo "build.gradle.kts ya existe."
         fi
