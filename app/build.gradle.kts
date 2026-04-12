@@ -28,6 +28,8 @@ android {
     }
     buildFeatures {
         viewBinding = true
+        // Asegurarse de que dataBinding NO está activado a menos que sea necesario
+        dataBinding = false
     }
 }
 
