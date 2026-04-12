@@ -69,7 +69,7 @@ jobs:
         cat app/build.gradle.kts || echo "No existe"
 
     - name: Compilar APK de depuración
-      run: gradle assembleDebug
+      run: ./gradlew assembleDebug
 
     - name: Subir APK como artefacto
       uses: actions/upload-artifact@v4
