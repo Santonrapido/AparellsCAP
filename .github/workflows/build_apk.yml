@@ -1,4 +1,4 @@
-name: Compilar APK de AparellsCAP
+name: Compilar APK
 
 on:
   push:
@@ -20,26 +20,29 @@ jobs:
     - name: Configurar Gradle
       uses: gradle/actions/setup-gradle@v3
 
-    - name: Mover al directorio del proyecto
-      run: cd AparellsCAP
-
-    - name: Verificar estructura del proyecto
+    - name: Mostrar estructura del proyecto
       run: |
-        cd AparellsCAP
-        echo "=== Raíz del proyecto ==="
+        echo "=== Raíz ==="
         ls -la
-        echo "=== Contenido de settings.gradle.kts ==="
+        echo "=== settings.gradle.kts ==="
         cat settings.gradle.kts || echo "No existe"
-        echo "=== Carpeta app/ ==="
-        ls -la app/
+        echo "=== build.gradle.kts (raíz) ==="
+        cat build.gradle.kts || echo "No existe"
+        echo "=== app/build.gradle.kts ==="
+        cat app/build.gradle.kts || echo "No existe"
+        echo "=== app/src/ ==="
+        ls -la app/src/ || echo "No existe"
 
-    - name: Compilar APK de depuración
+    - name: Compilar APK con Gradle wrapper
       run: |
-        cd AparellsCAP
-        gradle assembleDebug
+        if [ ! -f gradlew ]; then
+          gradle wrapper --gradle-version 8.9
+        fi
+        chmod +x gradlew
+        ./gradlew assembleDebug
 
-    - name: Subir APK como artefacto
+    - name: Subir APK
       uses: actions/upload-artifact@v4
       with:
         name: AparellsCAP-debug
-        path: AparellsCAP/app/build/outputs/apk/debug/app-debug.apk
+        path: app/build/outputs/apk/debug/app-debug.apk
