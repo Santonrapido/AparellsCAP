@@ -1,4 +1,4 @@
-name: Compilar APK de AparellsCAP
+name: Compilar APK
 
 on:
   push:
@@ -17,13 +17,13 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
 
-    - name: Configurar Gradle
-      uses: gradle/actions/setup-gradle@v3
+    - name: Dar permisos a gradlew
+      run: chmod +x gradlew
 
-    - name: Compilar APK de depuración
-      run: gradle assembleDebug   # Sin "./", usa el Gradle instalado por el action
+    - name: Compilar APK
+      run: ./gradlew assembleDebug
 
-    - name: Subir APK como artefacto
+    - name: Subir APK
       uses: actions/upload-artifact@v4
       with:
         name: AparellsCAP-debug
