@@ -4,14 +4,15 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.widget.*;
+import android.widget.Button;
 import android.widget.Toast;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import java.io.*;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,7 +20,7 @@ public class ListadoActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
     private EquipoAdapter adapter;
-    private List<EquipoItem> listaEquipos = new ArrayList<>();
+    private List<EquipoAdapter.EquipoItem> listaEquipos = new ArrayList<>();
     private DatabaseHelper dbHelper;
     private Button btnExportar, btnExportarTxt, btnSalir;
 
@@ -35,11 +36,7 @@ public class ListadoActivity extends AppCompatActivity {
         btnSalir = findViewById(R.id.btnSalir);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new EquipoAdapter(this, listaEquipos, equipo -> {
-            Intent intent = new Intent(ListadoActivity.this, RegistroActivity.class);
-            intent.putExtra("EQUIPO_ID", equipo.id);
-            startActivity(intent);
-        });
+        adapter = new EquipoAdapter(listaEquipos, this::onEquipoClick);
         recyclerView.setAdapter(adapter);
 
         btnSalir.setOnClickListener(v -> finish());
@@ -57,22 +54,26 @@ public class ListadoActivity extends AppCompatActivity {
                 int id = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_ID));
                 String nombre = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_NOMBRE));
                 String tipo = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_TIPO));
-                listaEquipos.add(new EquipoItem(id, nombre, tipo));
+                listaEquipos.add(new EquipoAdapter.EquipoItem(id, nombre, tipo));
             } while (cursor.moveToNext());
         }
         cursor.close();
         adapter.notifyDataSetChanged();
     }
 
+    private void onEquipoClick(EquipoAdapter.EquipoItem item) {
+        Intent intent = new Intent(ListadoActivity.this, RegistroActivity.class);
+        intent.putExtra("EQUIPO_ID", item.id);
+        startActivity(intent);
+    }
+
     private void exportarRegistroActual() {
-        // Exportar el primer elemento seleccionado (simplificado: pide selección)
-        // Para esta demo, exportaremos un diálogo con el primer equipo
         if (listaEquipos.isEmpty()) {
-            Toast.makeText(this, "No hay equipos", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "No hay equipos para exportar", Toast.LENGTH_SHORT).show();
             return;
         }
-        // Seleccionar el primer equipo como ejemplo (en una app real se seleccionaría de la lista)
-        EquipoItem item = listaEquipos.get(0);
+        // Exporta el primer elemento de la lista como ejemplo; en una app real se seleccionaría uno.
+        EquipoAdapter.EquipoItem item = listaEquipos.get(0);
         exportarEquipoIndividual(item.id);
     }
 
@@ -84,9 +85,19 @@ public class ListadoActivity extends AppCompatActivity {
             sb.append("------------------\n");
             sb.append("ID: ").append(equipoId).append("\n");
             sb.append("Nombre: ").append(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_NOMBRE))).append("\n");
-            // ... resto de campos
+            sb.append("Tipo: ").append(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_TIPO))).append("\n");
+            sb.append("Código: ").append(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_CODIGO))).append("\n");
+            sb.append("Marca: ").append(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_MARCA))).append("\n");
+            sb.append("Nº Serie: ").append(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_NUMSERIE))).append("\n");
+            sb.append("Notas: ").append(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_NOTAS))).append("\n");
+            sb.append("Ubicación: ").append(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_UBICACION))).append("\n");
+            boolean funcional = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_FUNCIONAL)) == 1;
+            sb.append("Funcional: ").append(funcional ? "Sí" : "No").append("\n");
             cursor.close();
             compartirTexto(sb.toString());
+        } else {
+            cursor.close();
+            Toast.makeText(this, "Equipo no encontrado", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -117,16 +128,5 @@ public class ListadoActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         cargarLista();
-    }
-
-    // Clase interna para el adaptador
-    static class EquipoItem {
-        int id;
-        String nombre, tipo;
-        EquipoItem(int id, String nombre, String tipo) {
-            this.id = id;
-            this.nombre = nombre;
-            this.tipo = tipo;
-        }
     }
 }
