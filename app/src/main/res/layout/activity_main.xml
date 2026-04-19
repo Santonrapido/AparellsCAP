@@ -23,7 +23,26 @@
         android:text="Creat per Antonio Prados Muñoz / EAP St Antoni"
         android:textSize="16sp"
         android:textColor="@color/text_black"
-        android:layout_marginBottom="64dp"/>
+        android:layout_marginBottom="16dp"/>
+
+    <!-- Nuevos campos para versión y fecha -->
+    <TextView
+        android:id="@+id/tvVersion"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Versión: --"
+        android:textSize="14sp"
+        android:textColor="@color/ics_light_blue"
+        android:layout_marginBottom="4dp"/>
+
+    <TextView
+        android:id="@+id/tvBuildDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Compilado: --"
+        android:textSize="14sp"
+        android:textColor="@color/ics_light_blue"
+        android:layout_marginBottom="48dp"/>
 
     <Button
         android:id="@+id/btnRegistro"
