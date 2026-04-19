@@ -12,6 +12,9 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
+
+        buildConfigField("String", "BUILD_DATE", "\"${System.currentTimeMillis()}\"")
+        buildConfigField("String", "BUILD_VERSION", "\"${versionName}\"")
     }
 
     buildTypes {
@@ -31,6 +34,7 @@ android {
 
     buildFeatures {
         viewBinding = true
+        buildConfig = true   // Asegurar que BuildConfig se genere
     }
 }
 
