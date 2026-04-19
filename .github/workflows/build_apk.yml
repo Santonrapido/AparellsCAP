@@ -17,31 +17,13 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
 
-    - name: Configurar Gradle
-      uses: gradle/actions/setup-gradle@v3
+    - name: Dar permisos de ejecución a gradlew
+      run: chmod +x gradlew
 
-    - name: Mostrar estructura del proyecto
-      run: |
-        echo "=== Raíz ==="
-        ls -la
-        echo "=== settings.gradle.kts ==="
-        cat settings.gradle.kts || echo "No existe"
-        echo "=== build.gradle.kts (raíz) ==="
-        cat build.gradle.kts || echo "No existe"
-        echo "=== app/build.gradle.kts ==="
-        cat app/build.gradle.kts || echo "No existe"
-        echo "=== app/src/ ==="
-        ls -la app/src/ || echo "No existe"
+    - name: Compilar APK de depuración
+      run: ./gradlew assembleDebug
 
-    - name: Compilar APK con Gradle wrapper
-      run: |
-        if [ ! -f gradlew ]; then
-          gradle wrapper --gradle-version 8.9
-        fi
-        chmod +x gradlew
-        ./gradlew assembleDebug
-
-    - name: Subir APK
+    - name: Subir APK como artefacto
       uses: actions/upload-artifact@v4
       with:
         name: AparellsCAP-debug
