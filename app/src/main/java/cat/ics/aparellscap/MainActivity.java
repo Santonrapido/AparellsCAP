@@ -24,15 +24,15 @@ public class MainActivity extends AppCompatActivity {
         TextView tvBuildDate = findViewById(R.id.tvBuildDate);
 
         String version = BuildConfig.BUILD_VERSION;
-        tvVersion.setText("Versión: " + version);
+        tvVersion.setText("Versió: " + version);
 
         try {
             long timestamp = Long.parseLong(BuildConfig.BUILD_DATE);
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
             String fecha = sdf.format(new Date(timestamp));
-            tvBuildDate.setText("Compilado: " + fecha);
+            tvBuildDate.setText("Compilat: " + fecha);
         } catch (NumberFormatException e) {
-            tvBuildDate.setText("Compilado: fecha desconocida");
+            tvBuildDate.setText("Compilat: data desconeguda");
         }
 
         Button btnRegistro = findViewById(R.id.btnRegistro);
@@ -52,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
                 Intent intent = new Intent(MainActivity.this, ListadoActivity.class);
                 startActivity(intent);
             } catch (Exception e) {
-                mostrarError("Error al abrir Listado", e);
+                mostrarError("Error en obrir el llistat", e);
             }
         });
     }
