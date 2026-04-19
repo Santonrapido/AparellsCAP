@@ -1,14 +1,6 @@
-buildscript {
-    repositories {
-        google()
-        mavenCentral()
-    }
-    dependencies {
-        classpath("com.android.tools.build:gradle:8.7.2")
-    }
+plugins {
+    id("com.android.application") version "8.7.2"
 }
-
-apply(plugin = "com.android.application")
 
 android {
     namespace = "cat.ics.aparellscap"
@@ -25,13 +17,18 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = false
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
+
     buildFeatures {
         viewBinding = true
     }
