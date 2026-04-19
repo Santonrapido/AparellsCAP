@@ -11,13 +11,13 @@ import java.util.List;
 public class EquipoAdapter extends RecyclerView.Adapter<EquipoAdapter.ViewHolder> {
 
     public interface OnItemClickListener {
-        void onItemClick(ListadoActivity.EquipoItem item);
+        void onItemClick(EquipoItem item);
     }
 
-    private List<ListadoActivity.EquipoItem> items;
+    private List<EquipoItem> items;
     private OnItemClickListener listener;
 
-    public EquipoAdapter(ListadoActivity context, List<ListadoActivity.EquipoItem> items, OnItemClickListener listener) {
+    public EquipoAdapter(List<EquipoItem> items, OnItemClickListener listener) {
         this.items = items;
         this.listener = listener;
     }
@@ -25,15 +25,16 @@ public class EquipoAdapter extends RecyclerView.Adapter<EquipoAdapter.ViewHolder
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(android.R.layout.simple_list_item_2, parent, false);
+        View view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.item_equipo, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        ListadoActivity.EquipoItem item = items.get(position);
-        holder.text1.setText(item.nombre);
-        holder.text2.setText(item.tipo + " (ID: " + item.id + ")");
+        EquipoItem item = items.get(position);
+        holder.tvNombre.setText(item.nombre);
+        holder.tvInfo.setText(item.tipo + "  •  ID: " + item.id);
         holder.itemView.setOnClickListener(v -> listener.onItemClick(item));
     }
 
@@ -43,11 +44,24 @@ public class EquipoAdapter extends RecyclerView.Adapter<EquipoAdapter.ViewHolder
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView text1, text2;
+        TextView tvNombre, tvInfo;
         ViewHolder(View itemView) {
             super(itemView);
-            text1 = itemView.findViewById(android.R.id.text1);
-            text2 = itemView.findViewById(android.R.id.text2);
+            tvNombre = itemView.findViewById(R.id.tvNombre);
+            tvInfo = itemView.findViewById(R.id.tvInfo);
+        }
+    }
+
+    // Clase para los datos
+    public static class EquipoItem {
+        public int id;
+        public String nombre;
+        public String tipo;
+
+        public EquipoItem(int id, String nombre, String tipo) {
+            this.id = id;
+            this.nombre = nombre;
+            this.tipo = tipo;
         }
     }
 }
