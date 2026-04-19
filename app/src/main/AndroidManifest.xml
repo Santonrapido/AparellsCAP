@@ -39,8 +39,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".RegistroActivity" android:exported="false" 
-            android:theme="@style/Theme.AparellsCAP"/>
+        <activity android:name=".RegistroActivity" android:exported="false"/>
         <activity android:name=".ListadoActivity" android:exported="false" />
     </application>
 </manifest>
