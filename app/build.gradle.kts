@@ -1,15 +1,23 @@
-plugins {
-    id("com.android.application")
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath("com.android.tools.build:gradle:8.7.2")
+    }
 }
+
+apply(plugin = "com.android.application")
 
 android {
     namespace = "cat.ics.aparellscap"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "cat.ics.aparellscap"
         minSdk = 21
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
     }
@@ -26,13 +34,12 @@ android {
     }
     buildFeatures {
         viewBinding = true
-        dataBinding = false
     }
 }
 
 dependencies {
-    implementation("androidx.appcompat:appcompat:1.6.1")
-    implementation("com.google.android.material:material:1.11.0")
+    implementation("androidx.appcompat:appcompat:1.7.0")
+    implementation("com.google.android.material:material:1.12.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation("androidx.viewpager2:viewpager2:1.0.0")
 }
