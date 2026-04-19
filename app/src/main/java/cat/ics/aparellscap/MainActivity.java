@@ -22,16 +22,16 @@ public class MainActivity extends AppCompatActivity {
 
         // Mostrar versión desde BuildConfig
         String version = BuildConfig.BUILD_VERSION;
-        tvVersion.setText("Versión: " + version);
+        tvVersion.setText("Versió: " + version);
 
         // Formatear la fecha de compilación
         try {
             long timestamp = Long.parseLong(BuildConfig.BUILD_DATE);
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
             String fecha = sdf.format(new Date(timestamp));
-            tvBuildDate.setText("Compilado: " + fecha);
+            tvBuildDate.setText("Compilat: " + fecha);
         } catch (NumberFormatException e) {
-            tvBuildDate.setText("Compilado: fecha desconocida");
+            tvBuildDate.setText("Compilat: data desconeguda");
         }
 
         Button btnRegistro = findViewById(R.id.btnRegistro);
