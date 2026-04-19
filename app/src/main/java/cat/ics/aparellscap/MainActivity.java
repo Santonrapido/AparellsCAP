@@ -4,7 +4,11 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -16,35 +20,55 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Referencias a los nuevos TextView
         TextView tvVersion = findViewById(R.id.tvVersion);
         TextView tvBuildDate = findViewById(R.id.tvBuildDate);
 
-        // Mostrar versión desde BuildConfig
         String version = BuildConfig.BUILD_VERSION;
-        tvVersion.setText("Versió: " + version);
+        tvVersion.setText("Versión: " + version);
 
-        // Formatear la fecha de compilación
         try {
             long timestamp = Long.parseLong(BuildConfig.BUILD_DATE);
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
             String fecha = sdf.format(new Date(timestamp));
-            tvBuildDate.setText("Compilat: " + fecha);
+            tvBuildDate.setText("Compilado: " + fecha);
         } catch (NumberFormatException e) {
-            tvBuildDate.setText("Compilat: data desconeguda");
+            tvBuildDate.setText("Compilado: fecha desconocida");
         }
 
         Button btnRegistro = findViewById(R.id.btnRegistro);
         Button btnListado = findViewById(R.id.btnListado);
 
         btnRegistro.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, RegistroActivity.class);
-            startActivity(intent);
+            try {
+                Intent intent = new Intent(MainActivity.this, RegistroActivity.class);
+                startActivity(intent);
+            } catch (Exception e) {
+                mostrarError("Error al abrir Registro", e);
+            }
         });
 
         btnListado.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, ListadoActivity.class);
-            startActivity(intent);
+            try {
+                Intent intent = new Intent(MainActivity.this, ListadoActivity.class);
+                startActivity(intent);
+            } catch (Exception e) {
+                mostrarError("Error al abrir Listado", e);
+            }
         });
+    }
+
+    private void mostrarError(String titulo, Exception e) {
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        e.printStackTrace(pw);
+        String stackTrace = sw.toString();
+
+        new AlertDialog.Builder(this)
+                .setTitle(titulo)
+                .setMessage(stackTrace)
+                .setPositiveButton("OK", null)
+                .show();
+
+        Toast.makeText(this, titulo + ": " + e.getMessage(), Toast.LENGTH_LONG).show();
     }
 }
