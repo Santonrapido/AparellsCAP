@@ -3,7 +3,7 @@ package cat.ics.aparellscap;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.Cursor; 
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -46,7 +46,7 @@ public class RegistroActivity extends AppCompatActivity {
     private FotoPagerAdapter fotoAdapter;
 
     private DatabaseHelper dbHelper;
-    private int currentEquipoId = -1; // -1 significa nuevo registro
+    private int currentEquipoId = -1;
 
     private File currentPhotoFile;
     private List<File> photoFiles = new ArrayList<>();
@@ -58,7 +58,7 @@ public class RegistroActivity extends AppCompatActivity {
 
         dbHelper = new DatabaseHelper(this);
 
-        // Vincular vistas
+        // Vincular vistas con comprobación de nulidad
         etNombre = findViewById(R.id.etNombre);
         etTipo = findViewById(R.id.etTipo);
         etCodigo = findViewById(R.id.etCodigo);
@@ -75,13 +75,18 @@ public class RegistroActivity extends AppCompatActivity {
         viewPagerFotos = findViewById(R.id.viewPagerFotos);
         tabLayoutFotos = findViewById(R.id.tabLayoutFotos);
 
+        // Inicializar lista de fotos vacía para evitar NullPointer
+        for (int i = 0; i < MAX_PHOTOS; i++) {
+            photoFiles.add(null);
+        }
+
         // Configurar adaptador de fotos
         fotoAdapter = new FotoPagerAdapter(this, photoFiles);
         viewPagerFotos.setAdapter(fotoAdapter);
         new TabLayoutMediator(tabLayoutFotos, viewPagerFotos,
                 (tab, position) -> tab.setText("Foto " + (position + 1))).attach();
 
-        // Obtener ID si venimos de listado (edición)
+        // Obtener ID si venimos de listado
         Intent intent = getIntent();
         if (intent.hasExtra("EQUIPO_ID")) {
             currentEquipoId = intent.getIntExtra("EQUIPO_ID", -1);
@@ -90,10 +95,6 @@ public class RegistroActivity extends AppCompatActivity {
         } else {
             btnActualizar.setEnabled(false);
             btnEliminar.setEnabled(false);
-            // Inicializar lista vacía de fotos
-            for (int i = 0; i < MAX_PHOTOS; i++) {
-                photoFiles.add(null);
-            }
         }
 
         // Listeners
@@ -117,15 +118,15 @@ public class RegistroActivity extends AppCompatActivity {
             swFuncional.setChecked(cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_FUNCIONAL)) == 1);
         }
         cursor.close();
-
-        // Cargar fotos existentes
         cargarFotosGuardadas(id);
     }
 
     private void cargarFotosGuardadas(int equipoId) {
         photoFiles.clear();
+        File dir = new File(getFilesDir(), "images");
+        if (!dir.exists()) dir.mkdirs();
         for (int i = 1; i <= MAX_PHOTOS; i++) {
-            File photo = new File(getFilesDir(), "images/" + equipoId + "_" + i + ".jpg");
+            File photo = new File(dir, equipoId + "_" + i + ".jpg");
             if (photo.exists()) {
                 photoFiles.add(photo);
             } else {
@@ -136,8 +137,12 @@ public class RegistroActivity extends AppCompatActivity {
     }
 
     private void verificarPermisosYTomarFoto() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
+            } else {
+                dispatchTakePictureIntent();
+            }
         } else {
             dispatchTakePictureIntent();
         }
@@ -176,7 +181,6 @@ public class RegistroActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-            // Redimensionar y guardar en la ubicación definitiva según posición libre
             if (currentPhotoFile != null && currentPhotoFile.exists()) {
                 int freeIndex = -1;
                 for (int i = 0; i < photoFiles.size(); i++) {
@@ -191,17 +195,14 @@ public class RegistroActivity extends AppCompatActivity {
                     return;
                 }
 
-                // Redimensionar imagen
                 Bitmap bitmap = BitmapFactory.decodeFile(currentPhotoFile.getAbsolutePath());
                 Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap, 1024, 768, true);
                 bitmap.recycle();
 
-                // Guardar con nombre: ID_índice+1.jpg (si es nuevo, ID se asignará después)
                 String fileName;
                 if (currentEquipoId != -1) {
                     fileName = currentEquipoId + "_" + (freeIndex + 1) + ".jpg";
                 } else {
-                    // Para nuevos, usamos un temporal y luego renombraremos al crear
                     fileName = "temp_" + freeIndex + "_" + System.currentTimeMillis() + ".jpg";
                 }
 
@@ -215,19 +216,15 @@ public class RegistroActivity extends AppCompatActivity {
                     return;
                 }
 
-                // Actualizar lista y eliminar temporal
                 currentPhotoFile.delete();
                 photoFiles.set(freeIndex, finalFile);
                 fotoAdapter.notifyDataSetChanged();
-
-                // Si ya hay ID, las fotos se guardaron con nombre definitivo; si no, se renombrarán al crear
             }
         }
     }
 
     private void crearEquipo() {
         if (!validarCampos()) return;
-
         String nombre = etNombre.getText().toString().trim();
         String tipo = etTipo.getText().toString().trim();
         String codigo = etCodigo.getText().toString().trim();
@@ -239,7 +236,6 @@ public class RegistroActivity extends AppCompatActivity {
 
         long newId = dbHelper.insertEquipo(nombre, tipo, codigo, marca, numserie, notas, ubicacion, funcional);
         if (newId != -1) {
-            // Renombrar fotos temporales
             for (int i = 0; i < photoFiles.size(); i++) {
                 File f = photoFiles.get(i);
                 if (f != null && f.getName().startsWith("temp_")) {
@@ -262,7 +258,6 @@ public class RegistroActivity extends AppCompatActivity {
     private void actualizarEquipo() {
         if (currentEquipoId == -1) return;
         if (!validarCampos()) return;
-
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Confirmar actualización");
         builder.setMessage("¿Guardar los cambios?");
@@ -275,7 +270,6 @@ public class RegistroActivity extends AppCompatActivity {
             String notas = etNotas.getText().toString().trim();
             String ubicacion = etUbicacion.getText().toString().trim();
             boolean funcional = swFuncional.isChecked();
-
             boolean success = dbHelper.updateEquipo(currentEquipoId, nombre, tipo, codigo, marca, numserie, notas, ubicacion, funcional);
             if (success) {
                 Toast.makeText(this, "Actualizado", Toast.LENGTH_SHORT).show();
@@ -295,7 +289,6 @@ public class RegistroActivity extends AppCompatActivity {
         builder.setPositiveButton("Eliminar", (dialog, which) -> {
             boolean success = dbHelper.deleteEquipo(currentEquipoId);
             if (success) {
-                // Eliminar fotos
                 for (File f : photoFiles) {
                     if (f != null && f.exists()) f.delete();
                 }
